@@ -17,8 +17,8 @@ about=The main function of the index layers made available by the Cartography De
     A função principal das camadas de índice é permitir ao usuário conhecer todos os produtos que a Coordenação de Cartografia do IBGE disponibiliza. Esse plugin exibe essas camadas no QGIS de uma forma estruturada.  
     
 
-tracker=http://bugs
-repository=http://repo
+tracker=https://github.com/IBGE-DGC/ibge_cartography_index_map/issues
+repository=https://github.com/IBGE-DGC/ibge_cartography_index_map
 # End of mandatory metadata
 
 # Recommended items:
@@ -31,7 +31,7 @@ changelog=0.1
 # Tags are comma separated with spaces allowed
 tags=IBGE, Index Map, Cartography, Mapa Índice, Cartografia
 
-homepage=http://homepage
+homepage=https://github.com/IBGE-DGC/ibge_cartography_index_map
 category=Plugins
 icon=icon.png
 # experimental flag

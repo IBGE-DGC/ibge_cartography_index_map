@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/plugins/ibge_cartography_index_map" >
+        <file>icon.png</file>
+    </qresource>
+</RCC>

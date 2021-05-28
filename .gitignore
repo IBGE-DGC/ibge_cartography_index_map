@@ -1,0 +1,16 @@
+# Ignore .pyc files
+*.pyc
+
+# Ignore what else is in __pycache__ directories
+__pycache__/
+
+# Ignore the .gitignore file itself
+#.gitignore
+
+# Ignore the folder i18n in the root directory of the repository
+/i18n/
+
+# Ignore the compile file
+/compile.bat
+
+

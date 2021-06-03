@@ -27,8 +27,10 @@ from qgis.PyQt.QtWidgets import QAction, QFileDialog
 
 # Initialize Qt resources from file resources.py
 from .resources import *
-# Import the code for the dialog
+# Import the code for the dialogs
 from .ibge_cartography_index_map_dialog import IBGECartographyIndexMapDialog
+from .download_ibge_cartography_index_map_dialog import DownloadIBGECartographyIndexMapDialog
+
 import os.path
 
 # Import from QGIS library
@@ -36,6 +38,9 @@ from qgis.core import QgsProject, Qgis, QgsVectorLayer
 
 # Import the Index Layer Map structure
 from .groups_layers import groups_idxlayers
+
+# Import other libraries
+import requests
 
 class IBGECartographyIndexMap:
     """QGIS Plugin Implementation."""
@@ -67,10 +72,12 @@ class IBGECartographyIndexMap:
         # Declare instance attributes
         self.actions = []
         self.menu = self.tr(u'&IBGE Cartography Index Map')
+        
 
         # Check if plugin was started the first time in current QGIS session
         # Must be set in initGui() to survive plugin reloads
         self.first_start = None
+        self.first_start_download = None
 
     # noinspection PyMethodMayBeStatic
     def tr(self, message):
@@ -171,9 +178,17 @@ class IBGECartographyIndexMap:
             text=self.tr(u'Display IBGE Cartography Index Layers'),
             callback=self.run,
             parent=self.iface.mainWindow())
+            
+        icon_path_download = ':/plugins/ibge_cartography_index_map/icon_download.png'
+        self.add_action(
+            icon_path_download,
+            text=self.tr(u'Download Geopackage of IBGE Cartography Index Layers'),
+            callback=self.run_download,
+            parent=self.iface.mainWindow())        
 
         # will be set False in run()
         self.first_start = True
+        self.first_start_download = True
 
 
     def unload(self):
@@ -183,7 +198,14 @@ class IBGECartographyIndexMap:
                 self.tr(u'&IBGE Cartography Index Map'),
                 action)
             self.iface.removeToolBarIcon(action)
+    
+    def select_downloaded_filename(self):
+        """Select destination name of downloaded Geopackage file."""
+        filename, _filter = QFileDialog.getSaveFileName(
+            self.dlg_download, "Save GPKG Index Map file as ", "", "*.gpkg")
             
+        self.dlg_download.lineEdit.setText(filename)
+    
     def select_input_file(self):
         """Select Geopackage file from File Manager."""
         filename, _filter = QFileDialog.getOpenFileName(
@@ -214,6 +236,46 @@ class IBGECartographyIndexMap:
                     temp_group.addLayer(vlayer)
                     
 
+    def run_download(self):
+        """Run method that downloads the Geopackage Index Map"""
+        
+        # Create the dialog with elements (after translation) and keep reference
+        # Only create GUI ONCE in callback, so that it will only load when the plugin is started
+        if self.first_start_download == True:
+            self.first_start_download = False
+            self.dlg_download = DownloadIBGECartographyIndexMapDialog()
+            self.dlg_download.pushButton.clicked.connect(self.select_downloaded_filename)
+            
+        # show the dialog
+        self.dlg_download.show()
+        # Run the dialog event loop
+        result = self.dlg_download.exec_()
+        # See if OK was pressed
+        if result:
+            print('Ok')
+            # Get filename of downloaded GPKG Index Map
+            self.filename_download = self.dlg_download.lineEdit.text()
+            print(self.filename_download)
+            
+            # Get response from the server
+            url =  (u'https://geoftp.ibge.gov.br/'
+                    u'cartas_e_mapas/bases_cartograficas_continuas/bc100/sergipe/'
+                    u'geopackage/bc100_se_2019_11_04.gpkg')
+            res = requests.get(url, stream=True)
+            
+            try:
+                res.raise_for_status()
+            except Exception as e:
+                self.iface.messageBar().pushMessage(
+                    "Error", str(e),
+                    level=Qgis.Critical, duration=3)
+            
+            # Download file
+            #total_length = res.headers.get('content-length')
+            with open(self.filename_download, "wb") as f:
+                for chunk in res.iter_content(chunk_size=4096):
+                    f.write(chunk)
+                
     def run(self):
         """Run method that performs all the real work"""
 

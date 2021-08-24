@@ -15,88 +15,88 @@ json_groups_idxlayers = r'''
                 "Imagens Ortorretificadas"
             ],
             "Ortomosaicos": [
-                "Ortomosaico 1 _ 100 000",
-                "Ortomosaico 1 _ 25 000"
+                "Ortomosaicos_100k",
+                "Ortomosaicos_25k"
             ],
             "Cartas Imagem": [
-                "Carta Imagem 1 _ 100 000",
-                "Carta Imagem 1 _ 25 000"            
+                "Cartas Imagem_100k",
+                "Cartas Imagem_25k"            
             ],
             "Mapas Imagem": [
-                "Mapa Imagem"
+                "Mapa Imagem do Distrito Federal_100k"
             ]
         }   
     },
     "Modelos Digitais de Superfícies": {
         "Modelo Digital de Elevação - MDE": [
-            "Modelos Digitais de Elevação em ASCII",
-            "Modelos Digitais de Elevação em TIFF"        
+            "Modelos Digitais de Elevação_ASCII",
+            "Modelos Digitais de Elevação_TIFF"        
         ]
     },
     "Cartas e Mapas": {
         "Bases Cartográficas Contínuas" : [
-            "Base Cartográfica Contínua da Amazônia Legal 1 _ 100 000",
-            "Base Contínua Vetorial 1 _ 1 000 000 Versão 2010",
-            "Base Contínua Vetorial 1 _ 1 000 000 Versão 2014",
-            "Base Contínua Vetorial 1 _ 1 000 000 Versão 2016",
-            "Base Contínua Vetorial 1 _ 100 000 Versão 2016",
-            "Base Contínua Vetorial 1 _ 100 000 Versão 2018",
-            "Base Contínua Vetorial 1 _ 100 000 Versão 2020",
-            "Base Contínua Vetorial 1 _ 25 000 Versão 2016",
-            "Base Contínua Vetorial 1 _ 25 000 Versão 2018",
-            "Base Contínua Vetorial 1 _ 25 000 Versão 2020",
-            "Base Contínua Vetorial 1 _ 250 000 Versão 2013",
-            "Base Contínua Vetorial 1 _ 250 000 Versão 2015",
-            "Base Contínua Vetorial 1 _ 250 000 Versão 2017",
-            "Base Contínua Vetorial 1 _ 250 000 Versão 2019",
-            "Base Contínua Vetorial do Estado de Roraima 1 _ 100 000"        
+            "Base Cartográfica Contínua da Amazônia Legal_100k_versão_2011",
+            "Base Cartográfica Contínua do Brasil_1M_versão_2010",
+            "Base Cartográfica Contínua do Brasil_1M_versão_2014",
+            "Base Cartográfica Contínua do Brasil_1M_versão_2016",
+            "Base Cartográfica Contínua do Brasil_250k_versão_2013",
+            "Base Cartográfica Contínua do Brasil_250k_versão_2015",
+            "Base Cartográfica Contínua do Brasil_250k_versão_2017",
+            "Base Cartográfica Contínua do Brasil_250k_versão_2019",
+            "Base Cartográfica Contínua do Estado de GO e do DF_100k_versão_2016",
+            "Base Cartográfica Contínua do Estado de RR_100k_versão_2011",
+            "Base Cartográfica Contínua do Estado de SC_25k_versão_2020",
+            "Base Cartográfica Contínua do Estado de SE_100k_versão_2019",
+            "Base Cartográfica Contínua do Estado do ES_100k_versão_2018",
+            "Base Cartográfica Contínua do Estado do RJ_25k_versão_2016",
+            "Base Cartográfica Contínua do Estado do RJ_25k_versão_2018"   
         ],
         "Folhas Topográficas": [
-            "Folhas Topográficas 1 _ 1 000 000",
-            "Folhas Topográficas 1 _ 100 000",
-            "Folhas Topográficas 1 _ 25 000",
-            "Folhas Topográficas 1 _ 250 000",
-            "Folhas Topográficas 1 _ 50 000",
-            "Folhas Topográficas Vetoriais 1 _ 1 000 000",
-            "Folhas Topográficas Vetoriais 1 _ 100 000",
-            "Folhas Topográficas Vetoriais 1 _ 25 000",
-            "Folhas Topográficas Vetoriais 1 _ 250 000",
-            "Folhas Topográficas Vetoriais 1 _ 50 000",
-            "Fotolitos 1 _ 100 000",
-            "Fotolitos 1 _ 25 000",
-            "Fotolitos 1 _ 250 000",
-            "Fotolitos 1 _ 50 000"        
+            "Folhas da Carta Internacional do Mundo ao Milionésimo Editoradas",
+            "Folhas da Carta Internacional do Mundo ao Milionésimo Vetoriais",
+            "Folhas Topográficas Editoradas_100k",
+            "Folhas Topográficas Editoradas_250k",
+            "Folhas Topográficas Editoradas_25k",
+            "Folhas Topográficas Editoradas_50k",
+            "Folhas Topográficas Fotolitos_100k",
+            "Folhas Topográficas Fotolitos_250k",
+            "Folhas Topográficas Fotolitos_25k",
+            "Folhas Topográficas Fotolitos_50k",
+            "Folhas Topográficas Vetoriais_100k",
+            "Folhas Topográficas Vetoriais_250k",
+            "Folhas Topográficas Vetoriais_25k",
+            "Folhas Topográficas Vetoriais_50k"     
         ],
         "Mapas do Brasil": {
             "Físico": [
-                "Mapa Físico do Brasil 1 _ 2 500 000 Versão 2017",
-                "Mapa Físico do Brasil 1 _ 5 000 000 Versão 2007",
-                "Mapa Físico do Brasil 1 _ 5 000 000 Versão 2018"            
+                "Mapa Físico do Brasil_2500k_versão_2017",
+                "Mapa Físico do Brasil_5M_versão_2007",
+                "Mapa Físico do Brasil_5M_versão_2018"            
             ],
             "Político": [
-                "Mapa Político do Brasil 1 _ 2 500 000 Versão 2005",
-                "Mapa Político do Brasil 1 _ 2 500 000 Versão 2014",
-                "Mapa Político do Brasil 1 _ 5 000 000 Versão 2004",
-                "Mapa Político do Brasil 1 _ 5 000 000 Versão 2013",
-                "Mapa Político do Brasil 1 _ 5 000 000 Versão 2015",
-                "Mapa Político do Brasil 1 _ 5 000 000 Versão 2016",
-                "Mapa Político do Brasil 1 _ 5 000 000 Versão 2020"            
+                "Mapa Político do Brasil_2500k_versão_2005",
+                "Mapa Político do Brasil_2500k_versão_2014",
+                "Mapa Político do Brasil_5M_versão_2004",
+                "Mapa Político do Brasil_5M_versão_2013",
+                "Mapa Político do Brasil_5M_versão_2015",
+                "Mapa Político do Brasil_5M_versão_2016",
+                "Mapa Político do Brasil_5M_versão_2020"            
             ],
             "Sociedade e Economia": [
-                "Mapa Temático das Indicações Geográficas Versão 2015",
-                "Mapa Temático das Indicações Geográficas Versão 2016",
-                "Mapa Temático das Indicações Geográficas Versão 2017",
-                "Mapa Temático das Indicações Geográficas Versão 2018",
-                "Mapa Temático das Indicações Geográficas Versão 2019"                
+                "Mapa Temático das Indicações Geográficas do Brasil_versão_2015",
+                "Mapa Temático das Indicações Geográficas do Brasil_versão_2016",
+                "Mapa Temático das Indicações Geográficas do Brasil_versão_2017",
+                "Mapa Temático das Indicações Geográficas do Brasil_versão_2018",
+                "Mapa Temático das Indicações Geográficas do Brasil_versão_2019"                
             ]
         },
         "Mapas Regionais": {
             "Físico": [
-                "Mapas Físicos Regionais  Versão 2013"            
+                "Mapas Físicos Regionais_versão_2013"            
             ],
             "Político": [
-                "Mapas Políticos Regionais  Versão 2009",
-                "Mapas Políticos Regionais  Versão 2017"
+                "Mapas Políticos Regionais_versão_2009",
+                "Mapas Políticos Regionais_versão_2017"
             ]
         },
         "Mapas Estaduais": {
@@ -104,10 +104,15 @@ json_groups_idxlayers = r'''
                 "Mapas Físicos Estaduais"            
             ],
             "Político": [
-                "Mapas Políticos Estaduais Versão 2009",
-                "Mapas Políticos Estaduais Versão 2015"
+                "Mapas Políticos Estaduais_versão_2009",
+                "Mapas Políticos Estaduais_versão_2015"
             ]            
         }
+    },
+    "Informações sobre Organização do Território": {
+        "Malhas Territoriais": [
+            "Limites das Unidades da Federação_versão_2020"
+        ]
     }
 }'''
     

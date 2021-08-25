@@ -28,7 +28,6 @@ from qgis.PyQt.QtWidgets import QAction, QFileDialog
 # Initialize Qt resources from file resources.py
 from .resources import *
 # Import the code for the dialogs
-from .ibge_cartography_index_map_dialog import IBGECartographyIndexMapDialog
 from .download_ibge_cartography_index_map_dialog import DownloadIBGECartographyIndexMapDialog
 
 import os.path
@@ -41,6 +40,7 @@ from .groups_layers import groups_idxlayers
 
 # Import other libraries
 import requests
+import zipfile
 
 
 class DownloadThread(QThread):
@@ -53,11 +53,10 @@ class DownloadThread(QThread):
         self.wait()
 
     def run(self):
-        
         # Download URL
         url = (u'https://geoftp.ibge.gov.br/'
-               u'cartas_e_mapas/bases_cartograficas_continuas/bc100/sergipe/'
-               u'geopackage/bc100_se_2019_11_04.gpkg')
+               u'cartas_e_mapas/mapa_indice_digital/mapa_indice_digital_5ed_2021/'
+               u'mapa_indice_digital_5ed_2021.zip') 
         
         # Get response from the server
         res = requests.get(url, stream=True)
@@ -105,6 +104,13 @@ class IBGECartographyIndexMap:
         self.iface = iface
         # initialize plugin directory
         self.plugin_dir = os.path.dirname(__file__)
+        print(self.plugin_dir)
+        # index map file directory
+        self.file_dir = os.path.join(self.plugin_dir, 'gpkg_indexmap_file')
+        # index map file
+        #self.file = os.path.join(self.file_dir, 
+        # 
+        
         # initialize locale
         locale = QSettings().value('locale/userLocale')[0:2]
         locale_path = os.path.join(
@@ -247,15 +253,9 @@ class IBGECartographyIndexMap:
                 action)
             self.iface.removeToolBarIcon(action)
     
-    def select_downloaded_filename(self):
-        """Select destination name of downloaded Geopackage file."""
-        filename, _filter = QFileDialog.getSaveFileName(
-            self.dlg_download, "Save GPKG Index Map file as ", "", "*.gpkg")
-            
-        self.dlg_download.lineEdit.setText(filename)
-        
+       
     def start_download(self):
-        self.thread = DownloadThread(self.dlg_download.lineEdit.text())
+        self.thread = DownloadThread(os.path.join(self.file_dir, 'mapa_indice_digital_v2021.zip'))
         self.thread._signal.connect(self.signal_accept)
         self.thread.start()
         self.dlg_download.pushButton_2.setEnabled(False)
@@ -282,12 +282,6 @@ class IBGECartographyIndexMap:
             self.dlg_download.progressBar.setValue(0)
             self.dlg_download.pushButton_2.setEnabled(True)
     
-    def select_input_file(self):
-        """Select Geopackage file from File Manager."""
-        filename, _filter = QFileDialog.getOpenFileName(
-                            self.dlg, "Select GPKG file ","", '*.gpkg')
-                            
-        self.dlg.lineEdit.setText(filename)
         
     def add_groups_layers(self, group_dict, group):
         """Adds the groups and layers presented in a dictionary to a parent group."""
@@ -312,6 +306,13 @@ class IBGECartographyIndexMap:
                     temp_group.addLayer(vlayer)
                     
 
+    def unzip_indexmap(self):
+        filename = os.path.join(self.file_dir, 'mapa_indice_digital_v2021.zip')
+        
+        with zipfile.ZipFile(filename, 'r') as zip_file:
+            zip_file.extractall(self.file_dir)
+            
+
     def run_download(self):
         """Run method that downloads the Geopackage Index Map"""
         
@@ -320,7 +321,6 @@ class IBGECartographyIndexMap:
         if self.first_start_download == True:
             self.first_start_download = False
             self.dlg_download = DownloadIBGECartographyIndexMapDialog()
-            self.dlg_download.pushButton.clicked.connect(self.select_downloaded_filename)
             self.dlg_download.pushButton_2.clicked.connect(self.start_download)
             
         # show the dialog
@@ -335,47 +335,43 @@ class IBGECartographyIndexMap:
     def run(self):
         """Run method that performs all the real work"""
 
-        # Create the dialog with elements (after translation) and keep reference
-        # Only create GUI ONCE in callback, so that it will only load when the plugin is started
-        if self.first_start == True:
-            self.first_start = False
-            self.dlg = IBGECartographyIndexMapDialog()
-            self.dlg.pushButton.clicked.connect(self.select_input_file)
-
-        # show the dialog
-        self.dlg.show()
-        # Run the dialog event loop
-        result = self.dlg.exec_()
-        # See if OK was pressed
-        if result:
-            # Do something useful here - delete the line containing pass and
-            # substitute with your code.
-            self.filename = self.dlg.lineEdit.text()
-                        
-            # Add main group of IBGE Index Map Layers
-            root = QgsProject.instance().layerTreeRoot()
-            main_group = root.addGroup('IBGE Index Map Layers') 
-
-            # List of added layers
-            self.layers_list = []
-            self.invalid_layers = [] 
-            
-            # Add Index Map Structure and Layers
+        self.filename = os.path.join(self.file_dir, 'mapa_indice_digital_v2021.gpkg')
+        
+        # Treatment if gpkg file doesn't exists 
+        if not os.path.exists(self.filename):
             try:
-                self.add_groups_layers(groups_idxlayers, main_group)
-            except Exception as e:
+                self.unzip_indexmap()
+            except FileNotFoundError as e:
                 self.iface.messageBar().pushMessage(
-                    "Error", str(e),
+                    "The file was not found, but you can download it with the plugin", str(e),
                     level=Qgis.Critical, duration=3)
-            else:
-                self.iface.messageBar().pushMessage(
-                    "Success", "Index Map Layers Loaded",
-                    level=Qgis.Success, duration=3)
-            
-            # Warn about invalid layers
-            invalid_layers_names = [layer.name() for layer in self.layers_list if not layer.isValid()]
-            if invalid_layers_names:
-                self.iface.messageBar().pushMessage(
-                    "Warning", "The following layers are invalid: {}".format(', '.join(invalid_layers_names)),
-                    level=Qgis.Warning, duration=3)
+                return
+                
+                    
+        # Add main group of IBGE Index Map Layers
+        root = QgsProject.instance().layerTreeRoot()
+        main_group = root.addGroup('IBGE Index Map Layers') 
+
+        # List of added layers
+        self.layers_list = []
+        self.invalid_layers = [] 
+        
+        # Add Index Map Structure and Layers
+        try:
+            self.add_groups_layers(groups_idxlayers, main_group)
+        except Exception as e:
+            self.iface.messageBar().pushMessage(
+                "Error", str(e),
+                level=Qgis.Critical, duration=3)
+        else:
+            self.iface.messageBar().pushMessage(
+                "Success", "Index Map Layers Loaded",
+                level=Qgis.Success, duration=3)
+        
+        # Warn about invalid layers
+        invalid_layers_names = [layer.name() for layer in self.layers_list if not layer.isValid()] 
+        if invalid_layers_names:
+            self.iface.messageBar().pushMessage(
+                "Warning", "The following layers are invalid: {}".format(', '.join(invalid_layers_names)),
+                level=Qgis.Warning, duration=3)
             

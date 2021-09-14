@@ -21,12 +21,14 @@
  *                                                                         *
  ***************************************************************************/
 """
-from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication
+from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication, QThread, pyqtSignal
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction
 
 # Initialize Qt resources from file resources.py
 from .resources import *
+# Import the code for the dialogs
+from .download_ibge_cartography_index_map_dialog import DownloadIBGECartographyIndexMapDialog
 
 # Import from QGIS library
 from qgis.core import QgsProject, Qgis, QgsVectorLayer
@@ -35,8 +37,55 @@ from qgis.core import QgsProject, Qgis, QgsVectorLayer
 from .groups_layers import groups_idxlayers
 
 # Import other libraries
+import requests
+import zipfile
 import os.path
 
+
+class DownloadThread(QThread):
+    _signal = pyqtSignal(int)
+    def __init__(self, filename_download):
+        super(DownloadThread, self).__init__()
+        self.filename_download = filename_download
+
+    def __del__(self):
+        self.wait()
+
+    def run(self):
+        # Download URL
+        url = (u'https://geoftp.ibge.gov.br/'
+               u'cartas_e_mapas/mapa_indice_digital/mapa_indice_digital_5ed_2021/'
+               u'mapa_indice_digital_5ed_2021.zip') 
+        
+        # Get response from the server
+        res = requests.get(url, stream=True)
+        
+        try:
+            res.raise_for_status()
+        except Exception:
+            # If any error in http request occurs, it returns -1 
+            self._signal.emit(-1)
+            
+        # Download file
+        total_length = int(res.headers.get('content-length'))
+        
+        # Progress bar starts at 0
+        dl = 0
+        self._signal.emit(dl)
+        
+        # Do the work while update the progress bar
+        try:
+            with open(self.filename_download, "wb") as f:
+                for chunk in res.iter_content(chunk_size=4096):
+                    f.write(chunk)
+                    dl = dl + len(chunk)
+                    done = int(dl / total_length * 100)
+                    self._signal.emit(done)
+                    
+        except FileNotFoundError:
+            # Returns -2 if file not found
+            self._signal.emit(-2)
+           
            
 class IBGECartographyIndexMap:
     """QGIS Plugin Implementation."""
@@ -197,6 +246,36 @@ class IBGECartographyIndexMap:
                 self.tr(u'&IBGE Cartography Index Map'),
                 action)
             self.iface.removeToolBarIcon(action)
+            
+    def start_download(self):
+        self.thread = DownloadThread(os.path.join(self.file_dir, 'mapa_indice_digital_v2021.zip'))
+        self.thread._signal.connect(self.signal_accept)
+        self.thread.start()
+        self.dlg_download.pushButton_2.setEnabled(False)
+        
+        
+    def signal_accept(self, msg):
+        # Error in http request
+        if msg == -1:
+            self.iface.messageBar().pushMessage(
+                "Error", "Error while retrieving URL",
+                level=Qgis.Critical, duration=3)
+            self.dlg_download.pushButton_2.setEnabled(True)
+            return    
+
+        # Error in filename    
+        if msg == -2:
+            self.iface.messageBar().pushMessage(
+                "Error", "Invalid filename",
+                level=Qgis.Critical, duration=3)
+            self.dlg_download.pushButton_2.setEnabled(True)
+            return
+        
+        self.dlg_download.progressBar.setValue(msg)
+        if self.dlg_download.progressBar.value() == 100:
+            self.dlg_download.progressBar.setValue(0)
+            self.dlg_download.pushButton_2.setEnabled(True)
+            
     
     def add_groups_layers(self, group_dict, group):
         """Adds the groups and layers presented in a dictionary to a parent group."""
@@ -221,9 +300,37 @@ class IBGECartographyIndexMap:
                     temp_group.addLayer(vlayer)
                     
 
+    def unzip_indexmap(self):
+        filename = os.path.join(self.file_dir, 'mapa_indice_digital_v2021.zip')
+        
+        with zipfile.ZipFile(filename, 'r') as zip_file:
+            zip_file.extractall(self.file_dir)                    
+                    
     def run(self):
         """Run method that performs all the real work"""
-
+        
+        # Create the dialog with elements (after translation) and keep reference
+        # Only create GUI ONCE in callback, so that it will only load when the plugin is started
+        if self.first_start_download == True:
+            self.first_start_download = False
+            self.dlg_download = DownloadIBGECartographyIndexMapDialog()
+            self.dlg_download.pushButton_2.clicked.connect(self.start_download)
+            
+        # Treatment if gpkg file doesn't exists 
+        if not os.path.exists(self.filename):
+            try:
+                self.unzip_indexmap()
+            except FileNotFoundError as e:
+                # show the dialog
+                self.dlg_download.show()
+                # Run the dialog event loop
+                result = self.dlg_download.exec_()
+                
+                if result:
+                    pass
+                    
+                return
+            
         # Add main group of IBGE Index Map Layers
         root = QgsProject.instance().layerTreeRoot()
         main_group = root.addGroup('IBGE Index Map Layers') 

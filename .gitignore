@@ -13,4 +13,6 @@ __pycache__/
 # Ignore the compile file
 /compile.bat
 
+# Ignore the past file used to compare
+/ibge_cartography_index_map_passado.py
 

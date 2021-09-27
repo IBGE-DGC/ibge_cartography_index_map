@@ -109,6 +109,9 @@ class IBGECartographyIndexMap:
         # Index Map Geopackage path
         self.filename = os.path.join(self.file_dir, 'mapa_indice_digital_v2021.gpkg')
         
+        # Variable to store if download has already started (avoid 2 download threads)
+        self.download_started = False
+        
         # List of added layers
         self.layers_list = []
         self.invalid_layers = [] 
@@ -251,30 +254,31 @@ class IBGECartographyIndexMap:
         self.thread = DownloadThread(os.path.join(self.file_dir, 'mapa_indice_digital_v2021.zip'))
         self.thread._signal.connect(self.signal_accept)
         self.thread.start()
-        self.dlg_download.pushButton_2.setEnabled(False)
         
         
     def signal_accept(self, msg):
         # Error in http request
         if msg == -1:
+            self.dlg_download.reject()
             self.iface.messageBar().pushMessage(
                 "Error", "Error while retrieving URL",
                 level=Qgis.Critical, duration=3)
-            self.dlg_download.pushButton_2.setEnabled(True)
             return    
 
         # Error in filename    
         if msg == -2:
+            self.dlg_download.reject()
             self.iface.messageBar().pushMessage(
                 "Error", "Invalid filename",
                 level=Qgis.Critical, duration=3)
-            self.dlg_download.pushButton_2.setEnabled(True)
             return
         
         self.dlg_download.progressBar.setValue(msg)
         if self.dlg_download.progressBar.value() == 100:
+            self.unzip_indexmap()
             self.dlg_download.progressBar.setValue(0)
-            self.dlg_download.pushButton_2.setEnabled(True)
+            self.dlg_download.accept()
+            self.run()
             
     
     def add_groups_layers(self, group_dict, group):
@@ -314,22 +318,20 @@ class IBGECartographyIndexMap:
         if self.first_start_download == True:
             self.first_start_download = False
             self.dlg_download = DownloadIBGECartographyIndexMapDialog()
-            self.dlg_download.pushButton_2.clicked.connect(self.start_download)
             
         # Treatment if gpkg file doesn't exists 
         if not os.path.exists(self.filename):
-            try:
-                self.unzip_indexmap()
-            except FileNotFoundError as e:
-                # show the dialog
-                self.dlg_download.show()
-                # Run the dialog event loop
-                result = self.dlg_download.exec_()
+            # show the dialog
+            self.dlg_download.show()
+            # Show dialog
+            self.dlg_download.show()
                 
-                if result:
-                    pass
-                    
-                return
+            # Start download
+            if not self.download_started:
+                self.download_started = True
+                self.start_download()
+                                   
+            return
             
         # Add main group of IBGE Index Map Layers
         root = QgsProject.instance().layerTreeRoot()

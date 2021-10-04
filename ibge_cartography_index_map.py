@@ -105,6 +105,8 @@ class IBGECartographyIndexMap:
 
         # index map file directory
         self.file_dir = os.path.join(self.plugin_dir, 'gpkg_indexmap_file')
+        if not os.path.exists(self.file_dir):
+            os.mkdir(self.file_dir)
         
         # Index Map Geopackage path
         self.filename = os.path.join(self.file_dir, 'mapa_indice_digital_v2021.gpkg')
